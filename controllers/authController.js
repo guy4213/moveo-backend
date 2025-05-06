@@ -5,20 +5,18 @@ import jwt from 'jsonwebtoken';
 // Register a new user
 export const registerUser = async (req, res) => {
   try {
-    const { userName, instrument, password } = req.body;
+    const { username, email, password } = req.body;
 
-    // Determine the role based on userName
-    const role = userName === "guy4213" ? "admin" : "user";
+    // create user in DB
+    const newUser = await User.create({ username, email, password });
 
-    // Create a new user
-    const newUser = await User.create({ userName, instrument, password, role });
-
-    // Remove sensitive data before sending the response
-    const userResponse = newUser.toJSON();
-
-    res.status(201).json(userResponse);
+    res.status(201).json(newUser);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to register user', details: error.message });
+    console.error("❌ Registration error:", error);
+    res.status(500).json({
+      error: "Failed to register user",
+      details: error.message || "Unknown error"
+    });
   }
 };
 
