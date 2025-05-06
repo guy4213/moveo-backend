@@ -3,24 +3,25 @@ import sequelize from "./db.js";
 import authRoutes from "./routes/userRoutes.js";
 import songRoutes from "./routes/songRoutes.js";
 import cors from "cors";
-import  { initializeSongData } from "./models/songModel.js"; // Import both the model and the initialization function
+import { initializeSongData } from "./models/songModel.js"; // Import initialization function
 
 const app = express();
-const PORT = 3001;
-app.use(cors());
 
+// Use the PORT from environment variables (Render sets this), fallback to 3001 for local
+const PORT = process.env.PORT || 3001;
+
+app.use(cors());
 app.use(express.json());
 app.use('/images', express.static('./pics'));
 app.use("/api/auth", authRoutes);
 app.use("/api/songs", songRoutes);
 
+// Sync SQLite and initialize data in development
 if (process.env.DB_TYPE === "sqlite") {
   sequelize
-    .sync({ force: process.env.NODE_ENV === 'development' }) // Only force in development
+    .sync({ force: process.env.NODE_ENV === 'development' })
     .then(async () => {
       console.log("✅ SQLite database synced");
-      
-      // Call the initialization function from your Song model
       await initializeSongData();
     })
     .catch((err) => console.error("❌ SQLite database sync error:", err));
@@ -28,5 +29,5 @@ if (process.env.DB_TYPE === "sqlite") {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
