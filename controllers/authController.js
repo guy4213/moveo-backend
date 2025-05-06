@@ -5,10 +5,10 @@ import jwt from 'jsonwebtoken';
 // Register a new user
 export const registerUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, instrument, password } = req.body;
 
     // create user in DB
-    const newUser = await User.create({ username, email, password });
+    const newUser = await User.create({ username, instrument, password });
 
     res.status(201).json(newUser);
   } catch (error) {
