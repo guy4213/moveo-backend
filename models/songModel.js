@@ -14,7 +14,7 @@ const Song = sequelize.define('Song', {
     allowNull: false
   },
   lyrics_chords: {
-    type: DataTypes.JSONB,
+    type: DataTypes.JSON, // ✅ Works with MySQL
     allowNull: false
   },
   artist: {
