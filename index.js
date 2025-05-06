@@ -10,6 +10,14 @@ const app = express();
 // Use the PORT from environment variables (Render sets this), fallback to 3001 for local
 const PORT = process.env.PORT || 3001;
 
+// Authenticate the database connection
+sequelize.authenticate()
+  .then(() => console.log("✅ DB connection authenticated"))
+  .catch(err => {
+    console.error("❌ DB connection failed:", err.message);
+    process.exit(1); // Exit the process if DB connection fails
+  });
+
 app.use(cors());
 app.use(express.json());
 app.use('/images', express.static('./pics'));

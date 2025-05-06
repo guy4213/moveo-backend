@@ -1,35 +1,49 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
-// Load environment variables from .env file
 dotenv.config();
 
-const dbType = process.env.DB_TYPE || 'mysql'; // Default to 'mysql' if not set
-
+const dbType = process.env.DB_TYPE || 'mysql';
 let sequelize;
 
-if (dbType === 'mysql') {
-  // MySQL setup
-  sequelize = new Sequelize(
-    process.env.DB_NAME,     // Database name
-    process.env.DB_USER,     // Username
-    process.env.DB_PASS,     // Password
-    {
-      host: process.env.DB_HOST,
-      dialect: 'mysql',      // Set the dialect as MySQL
-      port: process.env.DB_PORT,
+try {
+  if (dbType === 'mysql') {
+    const {
+      DB_NAME,
+      DB_USER,
+      DB_PASS,
+      DB_HOST,
+      DB_PORT = 3306 // fallback to default MySQL port
+    } = process.env;
+
+    if (!DB_NAME || !DB_USER || !DB_PASS || !DB_HOST) {
+      throw new Error("Missing required MySQL environment variables");
     }
-  );
-  console.log("✅ Using MySQL database");
-} else if (dbType === 'sqlite') {
-  // SQLite setup (using an SQLite file)
-  sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: 'database.sqlite',  // SQLite file name, or ':memory:' for an in-memory DB
-  });
-  console.log("✅ Using SQLite database");
-} else {
-  console.error('❌ Unsupported DB_TYPE in .env file');
+
+    sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
+      host: DB_HOST,
+      port: DB_PORT,
+      dialect: 'mysql',
+      logging: false, // optional: disables SQL logging
+    });
+
+    console.log("✅ Using MySQL database");
+
+  } else if (dbType === 'sqlite') {
+    sequelize = new Sequelize({
+      dialect: 'sqlite',
+      storage: 'database.sqlite',
+      logging: false,
+    });
+
+    console.log("✅ Using SQLite database");
+
+  } else {
+    throw new Error(`Unsupported DB_TYPE: ${dbType}`);
+  }
+} catch (err) {
+  console.error("❌ Sequelize initialization failed:", err.message);
+  process.exit(1);
 }
 
 export default sequelize;
