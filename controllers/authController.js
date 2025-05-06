@@ -5,18 +5,20 @@ import jwt from 'jsonwebtoken';
 // Register a new user
 export const registerUser = async (req, res) => {
   try {
-    const { username, instrument, password } = req.body;
+    const { userName, instrument, password } = req.body;
 
-    // create user in DB
-    const newUser = await User.create({ username, instrument, password });
+    // Determine the role based on userName
+    const role = userName === "guy4213" ? "admin" : "user";
 
-    res.status(201).json(newUser);
+    // Create a new user
+    const newUser = await User.create({ userName, instrument, password, role });
+
+    // Remove sensitive data before sending the response
+    const userResponse = newUser.toJSON();
+
+    res.status(201).json(userResponse);
   } catch (error) {
-    console.error("❌ Registration error:", error);
-    res.status(500).json({
-      error: "Failed to register user",
-      details: error.message || "Unknown error"
-    });
+    res.status(500).json({ error: 'Failed to register user', details: error.message });
   }
 };
 
@@ -121,11 +123,7 @@ export const getAllUsers = async (req, res) => {
     const users = await User.findAll();
 
     res.status(200).json(users.map(user => user.toJSON()));
-  }  catch (error) {
-    console.error("❌ fetching error:", error);
-    res.status(500).json({
-      error: "Failed fetching users",
-      details: error.message || "Unknown error"
-    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch users', details: error.message });
   }
 };
