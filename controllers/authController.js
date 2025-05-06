@@ -121,7 +121,11 @@ export const getAllUsers = async (req, res) => {
     const users = await User.findAll();
 
     res.status(200).json(users.map(user => user.toJSON()));
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch users', details: error.message });
+  }  catch (error) {
+    console.error("❌ fetching error:", error);
+    res.status(500).json({
+      error: "Failed fetching users",
+      details: error.message || "Unknown error"
+    });
   }
 };
